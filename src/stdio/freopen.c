@@ -21,7 +21,11 @@ FILE *freopen(const char *restrict filename, const char *restrict mode, FILE *re
 
 	if (!filename) {
 		if (fl&O_CLOEXEC)
+#ifndef _WSLTUB
 			__syscall(SYS_fcntl, f->fd, F_SETFD, FD_CLOEXEC);
+#else
+			fcntl(f->fd, F_SETFD, FD_CLOEXEC);
+#endif
 		fl &= ~(O_CREAT|O_EXCL|O_CLOEXEC);
 		if (syscall(SYS_fcntl, f->fd, F_SETFL, fl) < 0)
 			goto fail;
@@ -29,8 +33,11 @@ FILE *freopen(const char *restrict filename, const char *restrict mode, FILE *re
 		f2 = fopen(filename, mode);
 		if (!f2) goto fail;
 		if (f2->fd == f->fd) f2->fd = -1; /* avoid closing in fclose */
+#ifndef _WSLTUB
 		else if (__dup3(f2->fd, f->fd, fl&O_CLOEXEC)<0) goto fail2;
-
+#else
+		else if (dup3(f2->fd, f->fd, fl&O_CLOEXEC)<0) goto fail2;
+#endif
 		f->flags = (f->flags & F_PERM) | f2->flags;
 		f->read = f2->read;
 		f->write = f2->write;

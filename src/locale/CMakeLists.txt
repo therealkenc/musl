@@ -1,0 +1,28 @@
+set(locale_src
+    bind_textdomain_codeset.c
+    catclose.c
+    catgets.c
+    catopen.c
+    c_locale.c
+    dcngettext.c
+    duplocale.c
+    freelocale.c
+    iconv.c
+    iconv_close.c
+    langinfo.c
+    __lctrans.c
+    localeconv.c
+    locale_map.c
+    __mo_lookup.c
+    newlocale.c
+    pleval.c
+    setlocale.c
+    strcoll.c
+    strfmon.c
+    strxfrm.c
+    textdomain.c
+    uselocale.c
+    wcscoll.c
+    wcsxfrm.c
+)
+add_library(locale STATIC ${locale_src})

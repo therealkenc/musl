@@ -27,13 +27,25 @@ FILE *__fdopen(int fd, const char *mode)
 	if (!strchr(mode, '+')) f->flags = (*mode == 'r') ? F_NOWR : F_NORD;
 
 	/* Apply close-on-exec flag */
-	if (strchr(mode, 'e')) __syscall(SYS_fcntl, fd, F_SETFD, FD_CLOEXEC);
-
+	if (strchr(mode, 'e')) 
+#ifndef _WSLTUB
+		__syscall(SYS_fcntl, fd, F_SETFD, FD_CLOEXEC);
+#else
+		fcntl(fd, F_SETFD, FD_CLOEXEC);
+#endif
 	/* Set append mode on fd if opened for append */
 	if (*mode == 'a') {
+#ifndef _WSLTUB
 		int flags = __syscall(SYS_fcntl, fd, F_GETFL);
+#else
+		int flags = fcntl(fd, F_GETFL);
+#endif
 		if (!(flags & O_APPEND))
+#ifndef _WSLTUB
 			__syscall(SYS_fcntl, fd, F_SETFL, flags | O_APPEND);
+#else
+			fcntl(fd, F_SETFL, flags | O_APPEND);
+#endif
 		f->flags |= F_APP;
 	}
 
@@ -43,7 +55,11 @@ FILE *__fdopen(int fd, const char *mode)
 
 	/* Activate line buffered mode for terminals */
 	f->lbf = EOF;
+#ifndef _WSLTUB
 	if (!(f->flags & F_NOWR) && !__syscall(SYS_ioctl, fd, TIOCGWINSZ, &wsz))
+#else
+	if (!(f->flags & F_NOWR) && !ioctl(fd, TIOCGWINSZ, &wsz))
+#endif
 		f->lbf = '\n';
 
 	/* Initialize op ptrs. No problem if some are unneeded. */

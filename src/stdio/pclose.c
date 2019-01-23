@@ -2,6 +2,13 @@
 #include <errno.h>
 #include <unistd.h>
 
+#ifndef _WSLTUB
+// nevermind
+#else
+// This is the only raw syscall we allow through
+// in /stdio. No need to shim.
+#endif
+
 int pclose(FILE *f)
 {
 	int status, r;

@@ -3,6 +3,12 @@
 #include <string.h>
 #include <errno.h>
 
+#ifndef _WSLTUB
+// nevermind
+#else
+	int close(int fd);
+#endif
+
 FILE *fopen(const char *restrict filename, const char *restrict mode)
 {
 	FILE *f;
@@ -21,12 +27,19 @@ FILE *fopen(const char *restrict filename, const char *restrict mode)
 	fd = sys_open(filename, flags, 0666);
 	if (fd < 0) return 0;
 	if (flags & O_CLOEXEC)
+#ifndef _WSLTUB
 		__syscall(SYS_fcntl, fd, F_SETFD, FD_CLOEXEC);
-
+#else
+		fcntl(fd, F_SETFD, FD_CLOEXEC);
+#endif
 	f = __fdopen(fd, mode);
 	if (f) return f;
 
+#ifndef _WSLTUB
 	__syscall(SYS_close, fd);
+#else
+	close(fd);
+#endif
 	return 0;
 }
 
