@@ -1,9 +1,9 @@
-cmake_minimum_required(VERSION 3.12)
+cmake_minimum_required(VERSION 3.10)
 project(musl-parts C ASM)
 
-add_compile_definitions(
-    _WSLTUB
-    _XOPEN_SOURCE=700
+add_definitions(
+    -D_WSLTUB
+    -D_XOPEN_SOURCE=700
 )
 
 # -Os 
